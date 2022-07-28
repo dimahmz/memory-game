@@ -1,5 +1,5 @@
 {
-    "IMAGES": [
+"IMAGES": [
      {
          "imgPath": "/public/images/india-image.jpg",
          "imgAlt": "india image",
@@ -85,7 +85,7 @@
          "flip": false
      },
      {
-         "imgPath": "/public/imagesspain-image.jpg",
+         "imgPath": "/public/images/spain-image.jpg",
          "imgAlt": "spain image",
          "imgId": "id15",
          "flip": false
