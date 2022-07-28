@@ -6,7 +6,11 @@ module.exports = {
     "./src/**/*.{vue,js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      maxWidth: {
+        '600': '800px',
+      }
+    },
   },
   plugins: [
     plugin(function({addUtilities}){
@@ -19,6 +23,9 @@ module.exports = {
       },
       '.transform-3d': {
         'transform-style':'preserve-3d',
+      } , 
+      '.rotateY180': {
+        'transform':'rotateY(180deg)',
       }  
     })
   })
