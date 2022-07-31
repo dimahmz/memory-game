@@ -1,10 +1,9 @@
 <template lang="pug">
-Result(v-if="display")
+Result(v-if="display===false")
 Header
-GameSetting
-div.flex.justify-center 
- button.border-2.border-sky-500.py-1.px-4(class='hover:bg-sky-100') start
-GameBoard
+GameSetting(v-if="!start")
+ScoreBare(v-if="start")
+GameBoard(v-if="start")
 
 </template>
 
@@ -14,11 +13,15 @@ import Header from './components/header.vue'
 import GameBoard from './components/gameBoard.vue'
 import Result from './components/result.vue'
 import { mapGetters } from 'vuex'
+import ScoreBare from './components/scoreBare.vue'
 export default {
   name:'app',
-  components:{ GameSetting, Header, GameBoard, Result},
+  components:{ GameSetting, Header, GameBoard, Result, ScoreBare },
   computed: {
-    ...mapGetters({ display: "get_show_result"}),
+    ...mapGetters({ 
+      display: "get_show_result",
+      start: "get_start_game"
+      }),
   }
   }
 </script>

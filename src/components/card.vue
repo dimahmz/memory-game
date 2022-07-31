@@ -20,7 +20,7 @@ export default {
       filpCard(){
         if (this.enableClick) this.$store.dispatch("flip_image",this.index);
       }
-  }
+  },
 }
 </script>
 
