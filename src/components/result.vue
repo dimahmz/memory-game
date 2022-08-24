@@ -30,6 +30,7 @@ export default {
       this.$store.dispatch("GAME/paly_again");
     },
     close() {
+      this.$store.commit("GAME/TOGGLE_AGAIN_BTN");
       this.$store.dispatch("GAME/close_model");
     },
   },

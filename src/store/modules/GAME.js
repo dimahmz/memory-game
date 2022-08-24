@@ -1,34 +1,39 @@
 const state = () => ({
   start: false,
+  loading: false,
+  seeGame: false,
+  flags: [],
   score: 0,
-  IMAGES: [],
   flipped: 0,
-  chrono: 6,
+  chrono: 0,
   card1_index: null,
   card2_index: null,
   enable_click: true,
   win_cards: 0,
   show_result: false,
   win: false,
+  error: false,
 });
 const mutations = {
+  TOGGLE_LOADING(state) {
+    state.loading = !state.loading;
+  },
   START_GAME(state) {
     state.start = true;
-  },
-  ADD_IMAGES(state, imgs_array) {
-    state.IMAGES = imgs_array;
-    //  console.log(state.IMAGES)
   },
   SET_CHRONO(state, seletedTime) {
     state.chrono = seletedTime;
   },
   FLIP_UP_IMAGE(state, index) {
-    state.IMAGES[index].flip = true;
+    state.flags[index].flip = true;
     //  console.log(state.IMAGES)
   },
+  TOGGLE_AGAIN_BTN(state) {
+    state.seeGame = !state.seeGame;
+  },
   FLIP_DOWN_IMAGES(state) {
-    state.IMAGES[state.card1_index].flip = false;
-    state.IMAGES[state.card2_index].flip = false;
+    state.flags[state.card1_index].flip = false;
+    state.flags[state.card2_index].flip = false;
   },
   CLEAR_INDEXES(state) {
     state.card1_index = null;
@@ -57,35 +62,41 @@ const mutations = {
   },
 };
 const getters = {
-  get_images: (state) => state.IMAGES,
   get_enable_click: (state) => state.enable_click,
+  get_loader: (state) => state.loading,
   get_show_result: (state) => state.show_result,
   get_start_game: (state) => state.start,
   get_time: (state) => state.chrono,
   get_score: (state) => state.score,
   get_win: (state) => state.win,
+  get_show_error: (state) => state.error,
+  get_see_game: (state) => state.seeGame,
 };
 const actions = {
-  async paly_again({ state, commit, dispatch }) {
+  async paly_again({ state, commit }) {
     try {
-      state.IMAGES.map((img) => (img.flip = false));
-      state.start = false;
+      commit("TOGGLE_AGAIN_BTN");
+      state.flags.length = 0;
       state.win_cards = 0;
-      commit("HIDE_RESULT");
-      commit("RESUME_CLICK");
-      commit("CLEAR_INDEXES");
-      commit("CLEAR_SCORE");
-      await dispatch("shuffle_images");
+      state.show_result = false;
+      // commit("HIDE_RESULT");
+      // commit("RESUME_CLICK");
+      state.enable_click = true;
+      await commit("CLEAR_INDEXES");
+      // commit("CLEAR_SCORE");
+      state.score = 0;
       state.flipped = 0;
       state.score = 0;
       state.win = false;
+      state.start = false;
     } catch (err) {
+      state.error = true;
       console.log(err);
     }
   },
   close_model({ state, commit }) {
     state.win_cards = 0;
-    commit("HIDE_RESULT");
+    state.show_result = false;
     commit("CLEAR_INDEXES");
   },
   start_game({ commit, dispatch }, timeSelected) {
@@ -93,34 +104,30 @@ const actions = {
     commit("SET_CHRONO", timeSelected);
     dispatch("start_chrono");
   },
-  start_chrono({ state, commit }) {
+  set_flags({ state, rootGetters }) {
+    state.flags = rootGetters["flags/get_flags"];
+  },
+  start_chrono({ state }) {
     const Timer = setInterval(() => {
       state.chrono--;
       if (state.chrono === 0 || state.show_result) {
-        commit("SHOW_RESULT");
-        commit("STOP_CLICK");
+        // commit("SHOW_RESULT");
+        state.show_result = true;
+        // commit("STOP_CLICK");
+        state.enable_click = false;
         clearInterval(Timer);
       }
+      // console.log(state.chrono);
     }, 1000);
   },
-  async fetch_images({ commit, dispatch }) {
-    try {
-      const Cards_object = await fetch("Data/data.json");
-      const Cards = await Cards_object.json();
-      await commit("ADD_IMAGES", Cards.IMAGES);
-      await dispatch("shuffle_images");
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  flip_image({ commit, state, dispatch }, index) {
-    commit("FLIP_UP_IMAGE", index);
+  async flip_image({ commit, state, dispatch }, index) {
+    await commit("FLIP_UP_IMAGE", index);
     if (state.flipped === 0) {
       state.card1_index = index;
       state.flipped++;
-    } else {
+    } else if (state.flags[state.card1_index].id !== state.flags[index].id) {
       state.card2_index = index;
-      dispatch("comapre_cards");
+      await dispatch("comapre_cards");
       state.flipped = 0;
     }
   },
@@ -132,31 +139,23 @@ const actions = {
       commit("SHOW_RESULT");
     }
   },
-  comapre_cards({ state, commit, dispatch }) {
-    commit("STOP_CLICK");
+  async comapre_cards({ state, commit, dispatch }) {
+    await commit("STOP_CLICK");
     if (
-      state.IMAGES[state.card1_index].imgPath !==
-      state.IMAGES[state.card2_index].imgPath
+      state.flags[state.card1_index].imgPathNum !==
+      state.flags[state.card2_index].imgPathNum
     ) {
       setTimeout(() => {
         commit("FLIP_DOWN_IMAGES");
-        commit("RESUME_CLICK");
         commit("CLEAR_INDEXES");
-      }, 900);
+        commit("RESUME_CLICK");
+      }, 800);
     } else {
       commit("CLEAR_INDEXES");
       commit("RESUME_CLICK");
       commit("INC_win_cards");
       commit("INC_SCORE");
       dispatch("display_result");
-    }
-  },
-  shuffle_images({ state }) {
-    for (let i = state.IMAGES.length - 1; i > 0; i--) {
-      let random = Math.floor(Math.random() * i);
-      let temp = state.IMAGES[i];
-      state.IMAGES[i] = state.IMAGES[random];
-      state.IMAGES[random] = temp;
     }
   },
 };

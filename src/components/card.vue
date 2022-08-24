@@ -1,5 +1,5 @@
 <template lang="pug">
-img.object-cover.block.back-card(:src='data.imgPath' :alt='data.imgAlt')
+img.object-cover.block.back-card(:src='`https://countryflagsapi.com/svg/${flag.imgPathNum}`' )
 img.object-cover.block.front-card( @click="filpCard()" src='/images/back-image.jpg' alt='back image')
 </template>
 
@@ -9,14 +9,17 @@ export default {
   name: "card",
   props: {
     index: Number,
-    data: Object,
+    flag: Object,
   },
   computed: {
     ...mapGetters("GAME", { enableClick: "get_enable_click" }),
   },
   methods: {
-    filpCard() {
-      if (this.enableClick) this.$store.dispatch("GAME/flip_image", this.index);
+    async filpCard() {
+      if (this.enableClick) {
+        await this.$store.dispatch("GAME/flip_image", this.index);
+        // this.enableClick = false;
+      }
     },
   },
 };

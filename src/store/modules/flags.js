@@ -3,39 +3,47 @@
 //  SOUTH_AMERICA=[032,],
 
 const state = () => ({
-  AFRICA: [
-    "012",
-    "120",
-    "180",
-    "818",
-    "213",
-    "266",
-    "288",
-    "324",
-    "404",
-    "434",
+  continents: [
+    //
+    ["012", "120", "180", "818", "504", "266", "288", "324", "404", "434"],
+    //  EUROPE
+    ["056", "100", "620", "276", "380", "528", "616", "752", "756", "792"],
+    //  SOUTH_AMERICA
+    ["032", "076", "152", "170", "068", "218", "328", "604", "600", "858"],
   ],
   FLAGS: [],
 });
 const mutations = {
-  ADD_FLAGS(state, flags_links) {
-    state.FLAGS = flags_links;
-  },
+  // SET_FLAGS(rootState) {
+  //   console.log(rootState.GAME.flags);
+  // },
 };
 const getters = { get_flags: (state) => state.FLAGS };
 const actions = {
-  async fetch_flags({ state, dispatch }) {
+  async fetch_flags({ state, dispatch, commit, rootState }, INDEX) {
+    console.log(rootState.GAME.loading);
+    await commit("GAME/TOGGLE_LOADING", null, { root: true });
     try {
-      for (let key = 0; key < state.AFRICA.length; key++) {
-        const flags = await fetch(
-          `https://countryflagsapi.com/svg/${state.AFRICA[key]}`
+      state.FLAGS.length = 0;
+      for (let key = 0; key < state.continents[INDEX].length; key++) {
+        //duplicate the flags twice
+        await state.FLAGS.push(
+          { flip: false, imgPathNum: state.continents[INDEX][key], id: key },
+          {
+            flip: false,
+            imgPathNum: state.continents[INDEX][key],
+            id: key + 30,
+          }
         );
-        state.FLAGS.push(flags);
       }
       await dispatch("shuffle_flags");
-      console.log(state.FLAGS);
-    } catch {
-      console.log("an error occurred while fetching please refresh the page");
+      await dispatch("GAME/set_flags", null, { root: true });
+      setTimeout(() => {
+        commit("GAME/TOGGLE_LOADING", null, { root: true });
+      }, 500);
+    } catch (err) {
+      rootState.GAME.error = true;
+      console.log(err);
     }
   },
 
