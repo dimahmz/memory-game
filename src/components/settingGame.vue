@@ -2,19 +2,19 @@
 section.my-12.flex.justify-center.space-x-12
  label select time 
  select(v-model="selectedTime")
-  option(value=60) 1min
-  option(value=120) 2min
-  option(value=180) 3min
+  each val, key in {60:'1min',120:'2min',180:'3min'}
+    option(value=key)=val
+  //- option(value=60) 1min
+  //- option(value=120) 2min
+  //- option(value=180) 3min
  label continent 
  select(v-model.number="selectedContinent")
-  option(value=0) Africa
-  option(value=2) South America
-  option(value=1) Europe
+  each val, key in {0:'Africa',1:'Europe',2:'South America'}
+    option(value=key)=val
  label grid 
  select(v-model="grid")
-  option(value='4X4') 4X4
-  option(value='10X10') 10X10 
-  option(value='8X8') 8X8
+  each val in ['4X4','10X10','8X8']
+    option(value=val)=val
 div.flex.justify-center 
  a(href="#game" class='hover:bg-sky-100' @click="clicked()").border-2.border-sky-500.py-1.px-4 start 
 </template>
